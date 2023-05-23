@@ -1,0 +1,27 @@
+name: CD
+
+on: [push, pull_request]
+ 
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    # if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "3.3.0"
+
+      - name: Pub Get Packages
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --split-per-abi --release
+
+      - name: Create Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/apk/release/*.apk"
+          tag: v1.0.0
+          token: ${{ secrets.RELEASES_TOKEN }}
